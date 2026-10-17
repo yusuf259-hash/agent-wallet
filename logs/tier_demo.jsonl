@@ -1,0 +1,10 @@
+{"time": "2026-10-17 21:39:36", "event": "tool_call", "tool": "send_eth", "args": {"to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81", "amount_eth": 0.001}}
+{"time": "2026-10-17 21:39:36", "event": "policy_decision", "status": "deny", "reason": "Read-only mode: sending money is not allowed.", "args": {"to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81", "amount_eth": 0.001}}
+{"time": "2026-10-17 21:39:36", "event": "tool_result", "tool": "send_eth", "result": {"status": "denied", "reason": "Read-only mode: sending money is not allowed."}}
+{"time": "2026-10-17 21:39:36", "event": "tool_call", "tool": "send_eth", "args": {"to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81", "amount_eth": 0.001}}
+{"time": "2026-10-17 21:39:36", "event": "policy_decision", "status": "needs_approval", "reason": "A human must approve this payment first.", "args": {"to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81", "amount_eth": 0.001}}
+{"time": "2026-10-17 21:39:36", "event": "human_approval", "approved": true, "args": {"to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81", "amount_eth": 0.001}}
+{"time": "2026-10-17 21:39:36", "event": "tool_result", "tool": "send_eth", "result": {"status": "sent", "tx": "mock-0001", "amount_eth": 0.001, "to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81"}}
+{"time": "2026-10-17 21:39:36", "event": "tool_call", "tool": "send_eth", "args": {"to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81", "amount_eth": 0.001}}
+{"time": "2026-10-17 21:39:36", "event": "policy_decision", "status": "allow", "reason": "Within all limits.", "args": {"to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81", "amount_eth": 0.001}}
+{"time": "2026-10-17 21:39:36", "event": "tool_result", "tool": "send_eth", "result": {"status": "sent", "tx": "mock-0001", "amount_eth": 0.001, "to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81"}}
