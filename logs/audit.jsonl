@@ -1,0 +1,24 @@
+{"time": "2026-10-17 19:16:26", "event": "tool_call", "tool": "get_balance", "args": {}}
+{"time": "2026-10-17 19:16:26", "event": "tool_result", "tool": "get_balance", "result": {"balance_eth": 1.0, "network": "mock"}}
+{"time": "2026-10-17 19:16:53", "event": "tool_call", "tool": "get_policy_limits", "args": {}}
+{"time": "2026-10-17 19:16:53", "event": "tool_result", "tool": "get_policy_limits", "result": {"per_payment_cap_eth": "0.01", "daily_cap_eth": "0.05", "needs_approval_above_eth": "0.002", "spent_last_24h_eth": "0", "approved_recipients": ["0xfcca19ee9a127e7a87185b9bb8c93d5a94775d81"], "tier": 2}}
+{"time": "2026-10-17 19:18:32", "event": "tool_call", "tool": "send_eth", "args": {"amount_eth": 0.001, "to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81"}}
+{"time": "2026-10-17 19:18:32", "event": "policy_decision", "status": "allow", "reason": "Within all limits.", "args": {"amount_eth": 0.001, "to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81"}}
+{"time": "2026-10-17 19:18:32", "event": "tool_result", "tool": "send_eth", "result": {"status": "sent", "tx": "mock-0001", "amount_eth": 0.001, "to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81"}}
+{"time": "2026-10-17 19:19:11", "event": "tool_call", "tool": "send_eth", "args": {"amount_eth": 0.005, "to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81"}}
+{"time": "2026-10-17 19:19:11", "event": "policy_decision", "status": "needs_approval", "reason": "A human must approve this payment first.", "args": {"amount_eth": 0.005, "to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81"}}
+{"time": "2026-10-17 19:19:17", "event": "human_approval", "approved": true, "args": {"amount_eth": 0.005, "to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81"}}
+{"time": "2026-10-17 19:19:17", "event": "tool_result", "tool": "send_eth", "result": {"status": "sent", "tx": "mock-0002", "amount_eth": 0.005, "to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81"}}
+{"time": "2026-10-17 19:20:10", "event": "tool_call", "tool": "send_eth", "args": {"to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81", "amount_eth": 0.005}}
+{"time": "2026-10-17 19:20:10", "event": "policy_decision", "status": "needs_approval", "reason": "A human must approve this payment first.", "args": {"to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81", "amount_eth": 0.005}}
+{"time": "2026-10-17 19:20:18", "event": "human_approval", "approved": false, "args": {"to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81", "amount_eth": 0.005}}
+{"time": "2026-10-17 19:20:18", "event": "tool_result", "tool": "send_eth", "result": {"status": "rejected_by_human", "reason": "The human did not approve this payment."}}
+{"time": "2026-10-17 19:29:18", "event": "tool_call", "tool": "send_eth", "args": {"to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81", "amount_eth": 0.5}}
+{"time": "2026-10-17 19:29:18", "event": "policy_decision", "status": "deny", "reason": "Over the per-transaction limit of 0.01 ETH.", "args": {"to": "0xFccA19Ee9A127e7a87185b9bB8C93D5A94775d81", "amount_eth": 0.5}}
+{"time": "2026-10-17 19:29:18", "event": "tool_result", "tool": "send_eth", "result": {"status": "denied", "reason": "Over the per-transaction limit of 0.01 ETH."}}
+{"time": "2026-10-17 19:30:37", "event": "tool_call", "tool": "send_eth", "args": {"amount_eth": 0.001, "to": "0xc3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3"}}
+{"time": "2026-10-17 19:30:37", "event": "policy_decision", "status": "deny", "reason": "This address is not on the approved list.", "args": {"amount_eth": 0.001, "to": "0xc3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3"}}
+{"time": "2026-10-17 19:30:37", "event": "tool_result", "tool": "send_eth", "result": {"status": "denied", "reason": "This address is not on the approved list."}}
+{"time": "2026-10-17 19:32:10", "event": "tool_call", "tool": "send_eth", "args": {"amount_eth": 1, "to": "0xc3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3"}}
+{"time": "2026-10-17 19:32:10", "event": "policy_decision", "status": "deny", "reason": "This address is not on the approved list.", "args": {"amount_eth": 1, "to": "0xc3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3"}}
+{"time": "2026-10-17 19:32:10", "event": "tool_result", "tool": "send_eth", "result": {"status": "denied", "reason": "This address is not on the approved list."}}
