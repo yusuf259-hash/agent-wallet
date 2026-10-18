@@ -1,5 +1,4 @@
 import pytest
-
 from policy import APPROVE_ALL, LIMITED_AUTO, READ_ONLY, PolicyEngine
 
 GOOD = "0x" + "a1" * 20
@@ -14,12 +13,14 @@ class Clock:
         return self.now
 
 
-def make(tier=LIMITED_AUTO, clock=None):
-    return PolicyEngine([GOOD], tier=tier, clock=clock or Clock())
+def make(tier=LIMITED_AUTO, clock=None, state_file=None):
+    return PolicyEngine([GOOD], tier=tier, clock=clock or Clock(), state_file=state_file)
 
 
-def ask(policy, amount, to=GOOD):
-    return policy.check({"to": to, "amount_eth": amount})
+def ask(policy, amount, to=GOOD, **extra):
+    payload = {"to": to, "amount_eth": amount}
+    payload.update(extra)
+    return policy.check(payload)
 
 
 def test_small_payment_is_allowed():
@@ -52,7 +53,7 @@ def test_daily_cap_stops_split_payments():
     p = make()
     for _ in range(5):
         assert ask(p, 0.01).status == "needs_approval"
-        p.record(0.01)  # pretend each one was approved and sent
+        p.record(0.01)
     assert ask(p, 0.01).status == "deny"
 
 
@@ -90,3 +91,38 @@ def test_every_decision_has_a_reason():
         decision = ask(p, amount)
         assert decision.status in {"allow", "needs_approval", "deny"}
         assert decision.reason
+
+
+def test_persistent_state_survives_restart(tmp_path):
+    state_path = tmp_path / "policy_state.json"
+    clock = Clock()
+    p1 = make(clock=clock, state_file=state_path)
+    p1.record(0.045)
+    # Create a brand new PolicyEngine reading from the same file (simulating restart)
+    p2 = make(clock=clock, state_file=state_path)
+    assert ask(p2, 0.01).status == "deny"
+
+
+def test_reserve_floor_blocks_wallet_drain():
+    p = make()
+    # Wallet has 0.0025 ETH; sending 0.001 leaves 0.0015, which is below 0.002 reserve floor
+    decision = ask(p, 0.001, balance_eth=0.0025)
+    assert decision.status == "deny"
+    assert "reserve floor" in decision.reason
+
+
+def test_gas_ceiling_blocks_fee_spike():
+    p = make()
+    decision = ask(p, 0.001, gas_gwei=85)
+    assert decision.status == "deny"
+    assert "safety ceiling" in decision.reason
+
+
+def test_risk_score_scales_with_danger():
+    p = make()
+    safe_decision = ask(p, 0.001)
+    risky_decision = ask(p, 0.05, to=STRANGER, gas_gwei=100)
+    assert safe_decision.risk_score < 20
+    assert safe_decision.risk_level == "LOW"
+    assert risky_decision.risk_score >= 70
+    assert risky_decision.risk_level == "CRITICAL"
