@@ -1,5 +1,4 @@
 import pytest
-
 from adapters.mock import MockAdapter
 
 
@@ -26,3 +25,8 @@ def test_rejects_zero_amount():
     a = MockAdapter()
     with pytest.raises(ValueError):
         a.transfer("0xBOB", 0)
+
+
+def test_reports_gas_price_gwei():
+    a = MockAdapter(gas_gwei=15.5)
+    assert a.get_gas_price_gwei() == pytest.approx(15.5)

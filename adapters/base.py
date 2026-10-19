@@ -14,3 +14,7 @@ class ExecutionAdapter(ABC):
     @abstractmethod
     def transfer(self, to: str, amount_eth: float) -> str:
         """Send ETH. Returns a transaction ID."""
+
+    def get_gas_price_gwei(self) -> float:
+        """Return current network gas price in Gwei."""
+        return 1.0

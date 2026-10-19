@@ -1,8 +1,6 @@
 import json
 from decimal import Decimal
-
 import pytest
-
 from adapters.mock import MockAdapter
 from executor import AuditLog, ToolExecutor
 from policy import PolicyEngine
@@ -21,8 +19,8 @@ class Approver:
         return self.answer
 
 
-def make(tmp_path, balance=1.0, answer=False):
-    adapter = MockAdapter(starting_balance=balance)
+def make(tmp_path, balance=1.0, answer=False, gas_gwei=5.0):
+    adapter = MockAdapter(starting_balance=balance, gas_gwei=gas_gwei)
     policy = PolicyEngine([GOOD])
     approver = Approver(answer)
     audit = AuditLog(tmp_path / "audit.jsonl")
@@ -98,3 +96,55 @@ def test_balance_and_limits_tools(tmp_path):
     limits = ex.run("get_policy_limits", {})
     assert limits["per_payment_cap_eth"] == "0.01"
     assert limits["daily_cap_eth"] == "0.05"
+
+
+def test_portfolio_status_reports_spendable_and_gas(tmp_path):
+    ex, *_ = make(tmp_path, balance=1.0, gas_gwei=12.5)
+    status = ex.run("get_portfolio_status", {})
+    assert status["balance_eth"] == 1.0
+    assert status["spendable_balance_eth"] == pytest.approx(0.998)
+    assert status["gas_status"] == "SAFE"
+
+
+def test_simulate_transfer_does_not_move_money(tmp_path):
+    ex, adapter, policy, _ = make(tmp_path, balance=1.0)
+    sim = ex.run("simulate_transfer", {"to": GOOD, "amount_eth": 0.001})
+    assert sim["simulation"] is True
+    assert sim["would_status"] == "allow"
+    assert sim["risk_level"] == "LOW"
+    assert adapter.get_balance() == 1.0
+    assert policy.spent_last_24h() == Decimal("0")
+
+
+def test_simulate_catches_reserve_floor_breach(tmp_path):
+    ex, *_ = make(tmp_path, balance=0.0025)
+    sim = ex.run("simulate_transfer", {"to": GOOD, "amount_eth": 0.001})
+    assert sim["would_status"] == "deny"
+    assert "reserve floor" in sim["reason"]
+
+
+def test_executor_blocks_payment_when_gas_spikes(tmp_path):
+    ex, adapter, *_ = make(tmp_path, balance=1.0, gas_gwei=95.0)
+    result = ex.run("send_eth", {"to": GOOD, "amount_eth": 0.001})
+    assert result["status"] == "denied"
+    assert "safety ceiling" in result["reason"]
+    assert adapter.get_balance() == 1.0
+
+
+def test_batch_send_executes_valid_and_blocks_invalid(tmp_path):
+    ex, adapter, policy, _ = make(tmp_path, balance=1.0)
+    batch = ex.run(
+        "batch_send_eth",
+        {
+            "payments": [
+                {"to": GOOD, "amount_eth": 0.001},
+                {"to": STRANGER, "amount_eth": 0.001},
+                {"to": GOOD, "amount_eth": 0.001},
+            ]
+        },
+    )
+    assert batch["status"] == "batch_completed"
+    assert batch["total_requested"] == 3
+    assert batch["total_sent"] == 2
+    assert adapter.get_balance() == pytest.approx(0.998)
+    assert policy.spent_last_24h() == Decimal("0.002")
